@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arclet CMS — Asset Library</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; font-size: 13px; }
+
+nav { background: #fff; border-bottom: 1px solid #e9e9e9; padding: 0 28px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+.nav-logo { font-size: 15px; font-weight: 700; color: #6c35de; letter-spacing: -0.3px; }
+.nav-links { display: flex; height: 100%; align-items: stretch; }
+.nav-link { font-size: 13px; color: #666; padding: 0 16px; display: flex; align-items: center; border-bottom: 2px solid transparent; cursor: pointer; transition: color 0.12s; text-decoration: none; }
+.nav-link:hover { color: #1a1a1a; }
+.nav-link.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+.nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: #f0ece8; border: 1px solid #e0dbd5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #7a6a5a; cursor: pointer; }
+
+main { padding: 24px 28px 60px; }
+
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+.btn { font-size: 12px; font-family: inherit; padding: 7px 13px; border-radius: 7px; border: 1px solid #e0e0e0; background: #fff; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; transition: background 0.1s; }
+.btn:hover { background: #f5f5f3; }
+.btn-p { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.btn-p:hover { background: #333; border-color: #333; }
+.btn-g { border-color: transparent; color: #888; }
+.btn-g:hover { background: #f0f0ee; border-color: #e0e0e0; color: #555; }
+
+/* VIEW TOGGLE */
+.view-toggle { display: flex; border: 1px solid #e0e0e0; border-radius: 7px; overflow: hidden; background: #fff; }
+.vt-btn { font-size: 12px; font-family: inherit; padding: 6px 10px; border: none; background: transparent; color: #aaa; cursor: pointer; display: flex; align-items: center; transition: background 0.1s, color 0.1s; border-right: 1px solid #e0e0e0; }
+.vt-btn:last-child { border-right: none; }
+.vt-btn.active { background: #f5f5f3; color: #1a1a1a; }
+.vt-btn:hover:not(.active) { color: #666; }
+
+/* TABLE CARD */
+.table-card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; overflow: hidden; }
+
+/* FILTER BAR */
+.filter-bar { padding: 8px 10px; border-bottom: 1px solid #e9e9e9; display: flex; align-items: center; gap: 0; position: relative; background: #fff; }
+.filter-input-wrap { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; min-height: 32px; }
+.fi-icon { color: #bbb; flex-shrink: 0; }
+.f-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 2px 8px 2px 9px; background: #f0eeff; border: 1px solid #c8baff; border-radius: 6px; color: #4C1DDA; white-space: nowrap; }
+.f-chip-x { cursor: pointer; color: #9a7fff; font-size: 14px; line-height: 1; }
+.f-chip-x:hover { color: #4C1DDA; }
+.fi-text { border: none; outline: none; background: transparent; font-size: 13px; font-family: inherit; color: #1a1a1a; min-width: 140px; flex: 1; }
+.fi-text::placeholder { color: #c0c0c0; }
+.filter-right { display: flex; align-items: center; gap: 6px; border-left: 1px solid #e9e9e9; padding-left: 10px; margin-left: 6px; }
+
+/* QUICK FILTER PILLS */
+.quick-filters { display: flex; gap: 6px; padding: 7px 10px; border-bottom: 1px solid #e9e9e9; background: #fafaf9; flex-wrap: wrap; align-items: center; }
+.qf-label { font-size: 10px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: 0.07em; margin-right: 4px; }
+.qf-pill { font-size: 11px; font-family: inherit; padding: 3px 10px; border-radius: 999px; border: 1px solid #e0e0e0; background: #fff; color: #666; cursor: pointer; transition: all 0.1s; white-space: nowrap; }
+.qf-pill:hover { border-color: #6c35de; color: #6c35de; background: #f5f0ff; }
+.qf-pill.active { background: #6c35de; color: #fff; border-color: #6c35de; }
+.qf-sep { width: 1px; height: 14px; background: #e9e9e9; margin: 0 2px; }
+
+/* BULK ACTION BAR */
+.bulk-bar { display: none; align-items: center; gap: 8px; background: #1a1a1a; color: #fff; padding: 7px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; }
+.bulk-bar.visible { display: flex; }
+.bulk-sep { width: 1px; height: 16px; background: #444; }
+.bulk-btn { font-size: 12px; font-family: inherit; padding: 4px 10px; border-radius: 5px; border: 1px solid #444; background: transparent; color: #ccc; cursor: pointer; transition: background 0.1s; white-space: nowrap; }
+.bulk-btn:hover { background: #333; }
+.bulk-btn-ai { border-color: #6c35de; color: #b39dff; }
+.bulk-btn-ai:hover { background: #2a1a4a; }
+.bulk-btn-danger { border-color: #7a2020; color: #f09595; }
+.bulk-btn-danger:hover { background: #3a1010; }
+.bulk-dismiss { margin-left: auto; color: #888; cursor: pointer; font-size: 16px; line-height: 1; }
+.bulk-dismiss:hover { color: #fff; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th { background: #fafaf9; color: #777; font-weight: 500; padding: 8px 10px; text-align: left; border-bottom: 1px solid #e9e9e9; white-space: nowrap; font-size: 11px; user-select: none; }
+.th-inner { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+.sort-ic { color: #d0d0d0; font-size: 10px; }
+tbody tr { border-bottom: 1px solid #f0f0ee; transition: background 0.06s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fafaf9; }
+tbody tr.selected { background: #f5f0ff; }
+tbody td { padding: 0; border-right: 1px solid #f0f0ee; vertical-align: middle; }
+tbody td:last-child { border-right: none; }
+td.cb-cell { width: 40px; text-align: center; padding: 0 10px; cursor: default; }
+td.cell { padding: 9px 10px; }
+td.cell-center { padding: 9px 10px; text-align: center; }
+
+/* THUMBNAIL */
+.thumb { width: 40px; height: 40px; border-radius: 5px; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+.thumb-img { width: 100%; height: 100%; object-fit: cover; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 7px; border-radius: 999px; border: 1px solid; white-space: nowrap; font-weight: 500; }
+.b-jpg { background: #fff8f0; color: #9a5010; border-color: #f0c090; }
+.b-png { background: #f0f8ff; color: #105a9a; border-color: #90c0f0; }
+.b-gif { background: #f8f0ff; color: #7a10aa; border-color: #d090f0; }
+.b-svg { background: #f0fff4; color: #107a3a; border-color: #90d0b0; }
+.b-webp { background: #fff0f8; color: #aa107a; border-color: #f090d0; }
+.b-mov { background: #f5f5f0; color: #5a5a3a; border-color: #c0c090; }
+.b-inuse { background: #eaf3de; color: #3b6d11; border-color: #97c459; }
+.b-unused { background: #f5f5f3; color: #999; border-color: #ddd; }
+.b-altmissing { background: #faece7; color: #993c1d; border-color: #f0997b; }
+.b-altok { background: #eaf3de; color: #3b6d11; border-color: #97c459; }
+.b-folder { background: #f0eeff; color: #6c35de; border-color: #d4c8ff; }
+
+/* FILENAME CELL */
+.filename-wrap { display: flex; align-items: center; gap: 10px; }
+.filename-text { font-size: 12px; color: #1a1a1a; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+.filename-sub { font-size: 10px; color: #bbb; margin-top: 2px; }
+
+/* ALT TEXT CELL */
+.alt-text-cell { font-size: 11px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.alt-missing { color: #f0997b; font-style: italic; }
+
+/* USAGE CELL */
+.usage-count { font-size: 12px; color: #444; font-weight: 500; }
+.usage-zero { color: #bbb; }
+
+/* ROW ACTIONS */
+.row-acts { display: flex; align-items: center; gap: 3px; justify-content: flex-end; padding-right: 6px; opacity: 0; transition: opacity 0.1s; }
+tbody tr:hover .row-acts { opacity: 1; }
+.ra-btn { width: 26px; height: 26px; border-radius: 5px; border: none; background: transparent; cursor: pointer; color: #bbb; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: background 0.1s, color 0.1s; }
+.ra-btn:hover { background: #f0f0ee; color: #555; }
+.ra-btn-danger:hover { background: #fff0f0; color: #c0392b; }
+
+/* DELETE WARNING MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 20px; }
+.modal-icon-warn { background: #fff8e7; }
+.modal-icon-danger { background: #fff0f0; }
+.modal-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+.modal-body { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 8px; }
+.modal-linked { background: #fafaf9; border: 1px solid #e9e9e9; border-radius: 7px; padding: 10px 12px; margin: 12px 0; font-size: 12px; color: #555; }
+.modal-linked-item { padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+.modal-linked-dot { width: 4px; height: 4px; border-radius: 50%; background: #6c35de; flex-shrink: 0; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.modal-btn { font-size: 12px; font-family: inherit; padding: 8px 16px; border-radius: 7px; border: 1px solid #e0e0e0; background: #fff; color: #444; cursor: pointer; transition: background 0.1s; }
+.modal-btn:hover { background: #f5f5f3; }
+.modal-btn-danger { background: #c0392b; color: #fff; border-color: #c0392b; }
+.modal-btn-danger:hover { background: #a93226; }
+.modal-btn-warn { background: #e67e22; color: #fff; border-color: #e67e22; }
+.modal-btn-warn:hover { background: #ca6f1e; }
+
+/* TABLE FOOTER */
+.table-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid #e9e9e9; font-size: 11px; color: #999; background: #fafaf9; }
+.pagination { display: flex; gap: 3px; align-items: center; }
+.page-btn { min-width: 26px; height: 26px; border-radius: 5px; border: 1px solid #e4e4e4; background: #fff; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; padding: 0 7px; font-family: inherit; }
+.page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.page-btn:hover:not(.active) { background: #f5f5f3; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 12px; padding: 8px 16px; border-radius: 8px; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.toast.show { opacity: 1; }
+input[type="checkbox"] { cursor: pointer; accent-color: #6c35de; width: 14px; height: 14px; }
+::-webkit-scrollbar { width: 5px; height: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Arclet CMS</span>
+  <div class="nav-links">
+    <a class="nav-link">Templates</a>
+    <a class="nav-link active">Asset Library</a>
+    <a class="nav-link">Import History</a>
+  </div>
+  <div class="nav-avatar">MC</div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Asset Library</div>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button class="vt-btn" title="Grid view" onclick="showToast('Grid view — coming soon')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="vt-btn active" title="List view">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <button class="btn btn-p" onclick="showToast('File picker opening…')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload files
+      </button>
+    </div>
+  </div>
+
+  <!-- BULK BAR -->
+  <div class="bulk-bar" id="bulkBar">
+    <span id="bulkCount">0 selected</span>
+    <div class="bulk-sep"></div>
+    <button class="bulk-btn bulk-btn-ai" onclick="showToast('Generating AI alt text for selected assets…')">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Generate alt text
+    </button>
+    <button class="bulk-btn" onclick="showToast('Link to template…')">Link to template</button>
+    <button class="bulk-btn" onclick="showToast('Move to folder…')">Move to folder</button>
+    <button class="bulk-btn bulk-btn-danger" onclick="showToast('Delete confirmation…')">Delete</button>
+    <span class="bulk-dismiss" onclick="clearBulk()">×</span>
+  </div>
+
+  <div class="table-card">
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-input-wrap">
+        <svg class="fi-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="fi-text" placeholder="Search files, folders, agencies…" autocomplete="off">
+      </div>
+      <div class="filter-right">
+        <select style="font-size:12px;font-family:inherit;border:1px solid #e4e4e4;border-radius:6px;padding:4px 8px;background:#fafaf9;color:#444;cursor:pointer;outline:none;" onchange="showToast('Filtering by type…')">
+          <option>All types</option>
+          <option>JPG</option>
+          <option>PNG</option>
+          <option>GIF</option>
+          <option>WebP</option>
+          <option>MOV</option>
+        </select>
+        <select style="font-size:12px;font-family:inherit;border:1px solid #e4e4e4;border-radius:6px;padding:4px 8px;background:#fafaf9;color:#444;cursor:pointer;outline:none;" onchange="showToast('Filtering by folder…')">
+          <option>All folders</option>
+          <option>radon-awareness</option>
+          <option>breast-cancer-awareness</option>
+          <option>flu-season</option>
+          <option>NC DHHS Logos</option>
+        </select>
+        <select style="font-size:12px;font-family:inherit;border:1px solid #e4e4e4;border-radius:6px;padding:4px 8px;background:#fafaf9;color:#444;cursor:pointer;outline:none;" onchange="showToast('Sorting…')">
+          <option>Newest first</option>
+          <option>Oldest first</option>
+          <option>A → Z</option>
+          <option>Most used</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- QUICK FILTERS -->
+    <div class="quick-filters">
+      <span class="qf-label">Quick filter:</span>
+      <button class="qf-pill active" onclick="toggleQF(this)">All</button>
+      <button class="qf-pill" onclick="toggleQF(this)">Just added</button>
+      <button class="qf-pill" onclick="toggleQF(this)">Not linked</button>
+      <button class="qf-pill" onclick="toggleQF(this)">Missing alt text</button>
+      <div class="qf-sep"></div>
+      <button class="qf-pill" onclick="toggleQF(this)">Images</button>
+      <button class="qf-pill" onclick="toggleQF(this)">Videos</button>
+      <button class="qf-pill" onclick="toggleQF(this)">Logos</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+          <th style="width:56px"></th>
+          <th style="width:220px"><div class="th-inner">Filename <span class="sort-ic">⇅</span></div></th>
+          <th style="width:70px"><div class="th-inner">Type <span class="sort-ic">⇅</span></div></th>
+          <th style="width:100px"><div class="th-inner">Dimensions <span class="sort-ic">⇅</span></div></th>
+          <th style="width:70px"><div class="th-inner">Size <span class="sort-ic">⇅</span></div></th>
+          <th style="width:110px"><div class="th-inner">Folder <span class="sort-ic">⇅</span></div></th>
+          <th style="width:80px"><div class="th-inner">Usage <span class="sort-ic">⇅</span></div></th>
+          <th style="width:80px"><div class="th-inner">Alt text <span class="sort-ic">⇅</span></div></th>
+          <th style="width:220px"><div class="th-inner">Alt text preview</div></th>
+          <th style="width:90px"><div class="th-inner">Uploaded <span class="sort-ic">⇅</span></div></th>
+          <th style="width:80px"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="table-footer">
+      <span id="footerCount">Showing 12 of 48 assets</span>
+      <div class="pagination">
+        <button class="page-btn">← Prev</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">Next →</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- DELETE MODAL — UNLINKED -->
+<div class="modal-overlay" id="modalSimple">
+  <div class="modal">
+    <div class="modal-icon modal-icon-warn">⚠️</div>
+    <div class="modal-title">Delete this asset?</div>
+    <div class="modal-body">This asset is not linked to any templates. Once deleted it cannot be recovered.</div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModals()">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL — LINKED (TWO-STAGE) -->
+<div class="modal-overlay" id="modalLinked">
+  <div class="modal">
+    <div class="modal-icon modal-icon-danger">🔴</div>
+    <div class="modal-title" id="modalLinkedTitle">This asset is in use</div>
+    <div class="modal-body" id="modalLinkedBody">This asset is linked to <strong>4 published templates</strong>. Deleting it will remove the image from all of them. This cannot be undone.</div>
+    <div class="modal-linked" id="modalLinkedList"></div>
+    <div class="modal-body" style="color:#c0392b;font-size:12px;margin-top:8px" id="modalLinkedStage2" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModals()">Cancel</button>
+      <button class="modal-btn modal-btn-warn" id="modalLinkedBtn" onclick="linkedDeleteStep()">I understand, continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const thumbColors = [
+  'linear-gradient(135deg,#1a3a5c,#2d6a9f)',
+  'linear-gradient(135deg,#2d5a3d,#4a9a60)',
+  'linear-gradient(135deg,#5a2d1a,#9a5030)',
+  'linear-gradient(135deg,#3a1a5c,#6c35de)',
+  'linear-gradient(135deg,#5a3a1a,#c0802a)',
+  'linear-gradient(135deg,#1a5a3a,#2a9a6a)',
+  'linear-gradient(135deg,#3a1a1a,#9a3030)',
+  'linear-gradient(135deg,#1a1a5a,#3030aa)',
+  'linear-gradient(135deg,#4a4a1a,#9a9a30)',
+  'linear-gradient(135deg,#1a4a4a,#2a8a8a)',
+  'linear-gradient(135deg,#4a1a4a,#8a2a8a)',
+  'linear-gradient(135deg,#2a4a2a,#4a8a4a)',
+];
+
+const assets = [
+  { id:1, name:'radon-awareness-sq-en.jpg',   type:'JPG',  dim:'1080×1080', size:'284 KB', folder:'radon-awareness',          usage:4,  alt:'Photo of a smiling family indoors with radon awareness text. NC DHHS branding visible.',   uploaded:'Mar 15, 2026', linkedTemplates:['Radon Awareness — EN Square','Radon Awareness — EN 4:5','Radon Awareness — ES Square','Radon Awareness — FB Feed'] },
+  { id:2, name:'radon-awareness-sq-es.jpg',   type:'JPG',  dim:'1080×1080', size:'271 KB', folder:'radon-awareness',          usage:2,  alt:'Familia sonriente en interiores con texto sobre concienciación del radón.',               uploaded:'Mar 15, 2026', linkedTemplates:['Radon Awareness — ES Square','Radon Awareness — ES 4:5'] },
+  { id:3, name:'radon-carousel-02-stats.jpg', type:'JPG',  dim:'1080×1080', size:'198 KB', folder:'radon-awareness',          usage:1,  alt:'',                                                                                         uploaded:'Mar 15, 2026', linkedTemplates:['Radon Awareness — EN Square'] },
+  { id:4, name:'radon-carousel-03-cta.jpg',   type:'JPG',  dim:'1080×1080', size:'312 KB', folder:'radon-awareness',          usage:0,  alt:'',                                                                                         uploaded:'Mar 15, 2026', linkedTemplates:[] },
+  { id:5, name:'bc-awareness-sq-en.png',      type:'PNG',  dim:'1080×1080', size:'410 KB', folder:'breast-cancer-awareness',  usage:3,  alt:'Pink ribbon graphic with breast cancer awareness statistics and NC DHHS branding.',        uploaded:'Feb 28, 2026', linkedTemplates:['BC Awareness — EN Square','BC Awareness — EN 4:5','BC Awareness — FB Feed'] },
+  { id:6, name:'bc-awareness-sq-es.png',      type:'PNG',  dim:'1080×1080', size:'388 KB', folder:'breast-cancer-awareness',  usage:1,  alt:'',                                                                                         uploaded:'Feb 28, 2026', linkedTemplates:['BC Awareness — ES Square'] },
+  { id:7, name:'bc-awareness-linkedin.png',   type:'PNG',  dim:'1200×627',  size:'322 KB', folder:'breast-cancer-awareness',  usage:1,  alt:'Horizontal breast cancer awareness banner for LinkedIn.',                                  uploaded:'Feb 28, 2026', linkedTemplates:['BC Awareness — LinkedIn'] },
+  { id:8, name:'flu-season-sq-en.jpg',        type:'JPG',  dim:'1080×1080', size:'245 KB', folder:'flu-season',               usage:2,  alt:'Flu vaccine reminder graphic with smiling healthcare worker.',                            uploaded:'Jan 10, 2026', linkedTemplates:['Flu Season — EN Square','Flu Season — EN 4:5'] },
+  { id:9, name:'flu-season-sq-es.jpg',        type:'JPG',  dim:'1080×1080', size:'238 KB', folder:'flu-season',               usage:0,  alt:'',                                                                                         uploaded:'Jan 10, 2026', linkedTemplates:[] },
+  { id:10, name:'ncdhhs-logo-color.png',      type:'PNG',  dim:'800×200',   size:'42 KB',  folder:'NC DHHS Logos',            usage:12, alt:'NC Department of Health and Human Services full color logo.',                            uploaded:'Dec 1, 2025',  linkedTemplates:['Used across 12 templates'] },
+  { id:11, name:'ncdhhs-logo-white.png',      type:'PNG',  dim:'800×200',   size:'38 KB',  folder:'NC DHHS Logos',            usage:8,  alt:'NC DHHS logo in white, for use on dark backgrounds.',                                    uploaded:'Dec 1, 2025',  linkedTemplates:['Used across 8 templates'] },
+  { id:12, name:'radon-awareness-reel.mov',   type:'MOV',  dim:'1080×1920', size:'14.2 MB',folder:'radon-awareness',          usage:0,  alt:'',                                                                                         uploaded:'Mar 20, 2026', linkedTemplates:[] },
+];
+
+const typeColors = { JPG:'b-jpg', PNG:'b-png', GIF:'b-gif', WebP:'b-webp', MOV:'b-mov', SVG:'b-svg' };
+let checkedRows = new Set();
+let deleteTarget = null;
+let linkedDeleteStage = 0;
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  assets.forEach((a, i) => {
+    const tr = document.createElement('tr');
+    if (checkedRows.has(a.id)) tr.classList.add('selected');
+
+    // checkbox
+    const cb = document.createElement('td'); cb.className='cb-cell';
+    const chk = document.createElement('input'); chk.type='checkbox'; chk.checked=checkedRows.has(a.id);
+    chk.addEventListener('change',()=>{ chk.checked?checkedRows.add(a.id):checkedRows.delete(a.id); tr.classList.toggle('selected',chk.checked); updateBulk(); });
+    cb.appendChild(chk); tr.appendChild(cb);
+
+    // thumbnail
+    const thumbTd = document.createElement('td'); thumbTd.className='cell';
+    const isVideo = a.type==='MOV';
+    thumbTd.innerHTML = `<div class="thumb" style="background:${thumbColors[i]};position:relative">
+      ${isVideo ? '<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px">▶</span>' : ''}
+    </div>`;
+    tr.appendChild(thumbTd);
+
+    // filename
+    const fnTd = document.createElement('td'); fnTd.className='cell';
+    fnTd.innerHTML = `<div class="filename-wrap">
+      <div>
+        <div class="filename-text">${a.name}</div>
+        <div class="filename-sub">ID: asset_${String(a.id).padStart(3,'0')}</div>
+      </div>
+    </div>`;
+    tr.appendChild(fnTd);
+
+    // type
+    const typeTd = document.createElement('td'); typeTd.className='cell';
+    typeTd.innerHTML = `<span class="badge ${typeColors[a.type]||'b-jpg'}">${a.type}</span>`;
+    tr.appendChild(typeTd);
+
+    // dimensions
+    const dimTd = document.createElement('td'); dimTd.className='cell';
+    dimTd.innerHTML = `<span style="font-size:11px;color:#888;font-family:monospace">${a.dim}</span>`;
+    tr.appendChild(dimTd);
+
+    // size
+    const sizeTd = document.createElement('td'); sizeTd.className='cell';
+    sizeTd.innerHTML = `<span style="font-size:11px;color:#888">${a.size}</span>`;
+    tr.appendChild(sizeTd);
+
+    // folder
+    const folderTd = document.createElement('td'); folderTd.className='cell';
+    folderTd.innerHTML = `<span class="badge b-folder" style="font-size:10px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block">${a.folder}</span>`;
+    tr.appendChild(folderTd);
+
+    // usage
+    const usageTd = document.createElement('td'); usageTd.className='cell-center';
+    if (a.usage === 0) {
+      usageTd.innerHTML = `<span class="badge b-unused">Not linked</span>`;
+    } else {
+      usageTd.innerHTML = `<span class="badge b-inuse" style="cursor:pointer" onclick="showToast('Linked templates: ${a.linkedTemplates.join(', ')}')">${a.usage} template${a.usage>1?'s':''}</span>`;
+    }
+    tr.appendChild(usageTd);
+
+    // alt text status
+    const altStatusTd = document.createElement('td'); altStatusTd.className='cell-center';
+    if (!a.alt) {
+      altStatusTd.innerHTML = `<span class="badge b-altmissing">Missing</span>`;
+    } else {
+      altStatusTd.innerHTML = `<span class="badge b-altok">✓ Added</span>`;
+    }
+    tr.appendChild(altStatusTd);
+
+    // alt text preview
+    const altTd = document.createElement('td'); altTd.className='cell';
+    if (!a.alt) {
+      altTd.innerHTML = `<span class="alt-missing">No alt text — generate with AI or add manually</span>`;
+    } else {
+      const preview = a.alt.length>60?a.alt.slice(0,60)+'…':a.alt;
+      altTd.innerHTML = `<span class="alt-text-cell" title="${a.alt}">${preview}</span>`;
+    }
+    tr.appendChild(altTd);
+
+    // uploaded
+    const upTd = document.createElement('td'); upTd.className='cell';
+    upTd.innerHTML = `<span style="font-size:11px;color:#aaa">${a.uploaded}</span>`;
+    tr.appendChild(upTd);
+
+    // actions
+    const actTd = document.createElement('td'); actTd.className='cell';
+    actTd.innerHTML = `<div class="row-acts">
+      <button class="ra-btn" title="Edit" onclick="showToast('Opening asset edit…')">✎</button>
+      <button class="ra-btn" title="View linked templates" onclick="showToast('Linked: ${a.linkedTemplates.join(', ') || 'none'}')">⤴</button>
+      <button class="ra-btn ra-btn-danger" title="Delete" onclick="openDelete(${a.id})">🗑</button>
+    </div>`;
+    tr.appendChild(actTd);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function updateBulk() {
+  const bar = document.getElementById('bulkBar');
+  const cnt = document.getElementById('bulkCount');
+  if (checkedRows.size > 0) { bar.classList.add('visible'); cnt.textContent = checkedRows.size + ' selected'; }
+  else bar.classList.remove('visible');
+}
+function clearBulk() { checkedRows.clear(); document.getElementById('checkAll').checked=false; updateBulk(); renderTable(); }
+function toggleAll(cb) { if(cb.checked){assets.forEach(a=>checkedRows.add(a.id));}else checkedRows.clear(); updateBulk(); renderTable(); }
+
+function toggleQF(btn) {
+  document.querySelectorAll('.qf-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Filtering: ' + btn.textContent);
+}
+
+function openDelete(id) {
+  const asset = assets.find(a=>a.id===id);
+  deleteTarget = id;
+  linkedDeleteStage = 0;
+  if (asset.usage > 0) {
+    document.getElementById('modalLinkedTitle').textContent = 'This asset is in use';
+    document.getElementById('modalLinkedBody').innerHTML = `This asset is linked to <strong>${asset.usage} template${asset.usage>1?'s':''}</strong>. Deleting it will remove the image from all of them. This cannot be undone.`;
+    document.getElementById('modalLinkedList').innerHTML = asset.linkedTemplates.map(t=>`<div class="modal-linked-item"><div class="modal-linked-dot"></div>${t}</div>`).join('');
+    document.getElementById('modalLinkedStage2').textContent='';
+    document.getElementById('modalLinkedBtn').textContent='I understand, continue';
+    document.getElementById('modalLinkedBtn').className='modal-btn modal-btn-warn';
+    document.getElementById('modalLinked').classList.add('open');
+  } else {
+    document.getElementById('modalSimple').classList.add('open');
+  }
+}
+
+function linkedDeleteStep() {
+  if (linkedDeleteStage === 0) {
+    linkedDeleteStage = 1;
+    const stage2 = document.getElementById('modalLinkedStage2');
+    stage2.textContent = 'Are you absolutely sure? This will break the image in all linked templates immediately.';
+    stage2.style.display = 'block';
+    document.getElementById('modalLinkedBtn').textContent = 'Yes, permanently delete';
+    document.getElementById('modalLinkedBtn').className = 'modal-btn modal-btn-danger';
+  } else {
+    confirmDelete();
+  }
+}
+
+function confirmDelete() {
+  closeModals();
+  showToast('Asset deleted');
+}
+
+function closeModals() {
+  document.getElementById('modalSimple').classList.remove('open');
+  document.getElementById('modalLinked').classList.remove('open');
+  deleteTarget = null; linkedDeleteStage = 0;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) closeModals(); });
+});
+
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+renderTable();
+</script>
+</body>
+</html>
