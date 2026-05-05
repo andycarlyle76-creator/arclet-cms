@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arclet CMS — Template Edit</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; font-size: 13px; line-height: 1.5; }
+nav { background: #fff; border-bottom: 1px solid #e9e9e9; padding: 0 28px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+.nav-logo { font-size: 15px; font-weight: 700; color: #6c35de; letter-spacing: -0.3px; }
+.nav-links { display: flex; height: 100%; align-items: stretch; }
+.nav-link { font-size: 13px; color: #666; padding: 0 16px; display: flex; align-items: center; border-bottom: 2px solid transparent; cursor: pointer; transition: color 0.12s; text-decoration: none; }
+.nav-link:hover { color: #1a1a1a; }
+.nav-link.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+.nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: #f0ece8; border: 1px solid #e0dbd5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #7a6a5a; cursor: pointer; }
+
+.save-bar { display: none; position: sticky; top: 52px; z-index: 150; background: #1a1a1a; padding: 8px 28px; align-items: center; justify-content: space-between; font-size: 12px; color: #aaa; }
+.save-bar.visible { display: flex; }
+.save-bar-msg { display: flex; align-items: center; gap: 8px; }
+.save-dot { width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; }
+.save-actions { display: flex; gap: 8px; }
+.sbb { font-size: 12px; font-family: inherit; padding: 5px 12px; border-radius: 6px; border: 1px solid #444; background: transparent; color: #ddd; cursor: pointer; transition: background 0.1s; }
+.sbb:hover { background: #333; }
+.sbb-p { background: #fff; color: #1a1a1a; border-color: #fff; }
+.sbb-p:hover { background: #eee; }
+
+.page-topbar { background: #fff; border-bottom: 1px solid #e9e9e9; padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #999; flex-shrink: 0; overflow: hidden; }
+.breadcrumb a { color: #6c35de; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb-sep { color: #ddd; flex-shrink: 0; }
+.bc-cur { color: #444; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* SPLIT STATUS BUTTON */
+.split-btn { display: flex; border-radius: 7px; overflow: hidden; border: 1px solid; position: relative; }
+.split-btn-label { font-size: 12px; font-family: inherit; padding: 6px 12px; border: none; cursor: default; font-weight: 500; white-space: nowrap; }
+.split-btn-chevron { font-size: 12px; font-family: inherit; padding: 6px 9px; border: none; border-left: 1px solid rgba(0,0,0,0.12); cursor: pointer; display: flex; align-items: center; transition: background 0.1s; }
+.split-btn-chevron:hover { filter: brightness(0.95); }
+.split-btn-chevron svg { pointer-events: none; }
+.split-btn.s-published { border-color: #97c459; }
+.split-btn.s-published .split-btn-label, .split-btn.s-published .split-btn-chevron { background: #eaf3de; color: #3b6d11; }
+.split-btn.s-draft { border-color: #ccc; }
+.split-btn.s-draft .split-btn-label, .split-btn.s-draft .split-btn-chevron { background: #f5f5f3; color: #555; }
+.split-btn.s-archived { border-color: #f0997b; }
+.split-btn.s-archived .split-btn-label, .split-btn.s-archived .split-btn-chevron { background: #faece7; color: #993c1d; }
+
+.status-dropdown { display: none; position: absolute; top: calc(100% + 4px); right: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 400; min-width: 140px; overflow: hidden; }
+.status-dropdown.open { display: block; }
+.sdrop-item { padding: 9px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #444; transition: background 0.08s; }
+.sdrop-item:hover { background: #f5f5f3; }
+.sdrop-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sdrop-dot.d-published { background: #3b6d11; }
+.sdrop-dot.d-draft { background: #aaa; }
+.sdrop-dot.d-archived { background: #993c1d; }
+
+.btn { font-size: 12px; font-family: inherit; padding: 7px 13px; border-radius: 7px; border: 1px solid #e0e0e0; background: #fff; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; transition: background 0.1s; }
+.btn:hover { background: #f5f5f3; }
+.btn-p { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.btn-p:hover { background: #333; border-color: #333; }
+.btn-g { border-color: transparent; color: #888; }
+.btn-g:hover { background: #f0f0ee; border-color: #e0e0e0; color: #555; }
+
+main { display: flex; gap: 0; height: calc(100vh - 104px); overflow: hidden; }
+.left-panel { flex: 2; overflow-y: auto; padding: 28px 32px 80px; border-right: 1px solid #e9e9e9; background: #fff; }
+.right-panel { flex: 1; min-width: 0; max-width: 360px; overflow-y: auto; padding: 20px 16px; background: #f5f5f3; }
+
+.fields-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+.field-full { grid-column: 1 / -1; }
+.fields-grid .sec-label { grid-column: 1 / -1; }
+.sec-label { font-size: 10px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; margin-top: 24px; padding-bottom: 6px; border-bottom: 1px solid #f0f0ee; }
+.sec-label:first-child { margin-top: 0; }
+.field { margin-bottom: 14px; }
+.field-label { font-size: 11px; font-weight: 500; color: #888; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; }
+.field-hint { font-size: 10px; color: #bbb; font-weight: 400; }
+
+input.fi, select.fi { width: 100%; font-size: 13px; font-family: inherit; padding: 0 10px; height: 37px; border-radius: 7px; border: 1px solid #e4e4e4; background: #fafaf9; color: #1a1a1a; transition: border-color 0.12s, background 0.12s; outline: none; display: block; }
+input.fi:focus, select.fi:focus { border-color: #6c35de; background: #fff; box-shadow: 0 0 0 3px rgba(108,53,222,0.08); }
+input.fi.dirty, select.fi.dirty { border-color: #f59e0b; background: #fffdf5; }
+input.fi[readonly] { background: #f5f5f3; color: #aaa; cursor: default; border-color: #eee; }
+select.fi { cursor: pointer; }
+textarea.fi { width: 100%; font-size: 13px; font-family: inherit; padding: 9px 10px; min-height: 86px; border-radius: 7px; border: 1px solid #e4e4e4; background: #fafaf9; color: #1a1a1a; transition: border-color 0.12s, background 0.12s; outline: none; resize: vertical; line-height: 1.5; display: block; }
+textarea.fi.tall { min-height: 110px; }
+textarea.fi:focus { border-color: #6c35de; background: #fff; box-shadow: 0 0 0 3px rgba(108,53,222,0.08); }
+textarea.fi.dirty { border-color: #f59e0b; background: #fffdf5; }
+
+.title-wrap { position: relative; }
+.title-wrap input.fi { padding-right: 44px; }
+.title-version { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #ccc; pointer-events: none; font-family: monospace; }
+
+.ai-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-family: inherit; padding: 4px 9px; border-radius: 5px; border: 1px solid #e0d8ff; background: #f5f0ff; color: #6c35de; cursor: pointer; transition: background 0.1s; margin-top: 5px; }
+.ai-btn:hover { background: #ede5ff; }
+
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; grid-column: 1 / -1; }
+.toggle-lbl { font-size: 12px; color: #444; }
+.toggle-sub { font-size: 11px; color: #aaa; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-sl { position: absolute; inset: 0; background: #ddd; border-radius: 999px; cursor: pointer; transition: background 0.15s; }
+.toggle-sl::before { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: transform 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle input:checked + .toggle-sl { background: #6c35de; }
+.toggle input:checked + .toggle-sl::before { transform: translateX(16px); }
+
+.group-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 0 10px; height: 37px; background: #f0eeff; border: 1px solid #d4c8ff; border-radius: 7px; color: #6c35de; cursor: pointer; transition: background 0.1s; white-space: nowrap; width: 100%; }
+.group-badge:hover { background: #e8deff; }
+.group-badge-ct { font-size: 10px; color: #9a7fff; margin-left: auto; }
+
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 8px; border-radius: 7px; border: 1px solid #e4e4e4; background: #fafaf9; min-height: 37px; cursor: text; transition: border-color 0.12s; align-items: center; }
+.tags-wrap:focus-within { border-color: #6c35de; background: #fff; box-shadow: 0 0 0 3px rgba(108,53,222,0.08); }
+.tag-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; background: #f0f0ee; border: 1px solid #e0e0e0; border-radius: 999px; color: #555; white-space: nowrap; }
+.tag-x { cursor: pointer; color: #bbb; font-size: 13px; line-height: 1; }
+.tag-x:hover { color: #555; }
+.tag-input { border: none; outline: none; background: transparent; font-size: 12px; font-family: inherit; min-width: 80px; color: #1a1a1a; height: 22px; }
+
+.timestamps { display: flex; flex-wrap: wrap; gap: 0; padding: 10px 0; border-top: 1px solid #f0f0ee; margin-top: 4px; grid-column: 1 / -1; }
+.ts-item { font-size: 11px; color: #bbb; margin-right: 20px; margin-bottom: 4px; }
+.ts-item strong { color: #888; font-weight: 500; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+
+.audit-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid #f0f0ee; grid-column: 1 / -1; }
+.audit-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.audit-title { font-size: 11px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: 0.07em; }
+.audit-va { font-size: 11px; color: #6c35de; cursor: pointer; }
+.audit-va:hover { text-decoration: underline; }
+.audit-entry { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f8f8f8; align-items: flex-start; }
+.audit-entry:last-child { border-bottom: none; }
+.audit-dot { width: 5px; height: 5px; border-radius: 50%; background: #d0d0d0; margin-top: 5px; flex-shrink: 0; }
+.audit-dot.me { background: #6c35de; }
+.audit-txt { font-size: 11px; color: #888; line-height: 1.4; flex: 1; }
+.audit-txt strong { color: #555; font-weight: 500; }
+.audit-time { font-size: 10px; color: #ccc; white-space: nowrap; font-family: monospace; padding-top: 1px; }
+
+.delete-zone { grid-column: 1 / -1; margin-top: 48px; padding-top: 24px; border-top: 1px solid #f8f8f8; display: flex; justify-content: center; }
+.delete-link { font-size: 12px; color: #c0392b; background: none; border: none; cursor: pointer; font-family: inherit; opacity: 0.45; transition: opacity 0.15s; padding: 0; }
+.delete-link:hover { opacity: 1; text-decoration: underline; }
+
+/* RIGHT PANEL */
+.r-card { background: #fff; border: 1px solid #e9e9e9; border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.r-card-hd { padding: 10px 14px; border-bottom: 1px solid #f0f0ee; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.r-card-title { font-size: 12px; font-weight: 600; color: #444; }
+.r-card-acts { display: flex; align-items: center; gap: 10px; }
+.r-card-act { font-size: 11px; color: #6c35de; cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
+.r-card-act:hover { text-decoration: underline; }
+.r-card-sep { width: 1px; height: 12px; background: #e9e9e9; }
+.r-card-body { padding: 14px; }
+
+/* ASSET ITEM — half-width image */
+.asset-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0ee; }
+.asset-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+.asset-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.asset-thumb-wrap { width: calc(50% - 6px); flex-shrink: 0; }
+.asset-preview { width: 100%; aspect-ratio: 1/1; background: #f0f0ee; border-radius: 7px; overflow: hidden; position: relative; cursor: pointer; }
+.asset-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.15s; flex-direction: column; }
+.asset-preview:hover .asset-overlay { background: rgba(0,0,0,0.38); }
+.asset-overlay-btn { font-size: 11px; font-family: inherit; padding: 4px 9px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); color: #fff; cursor: pointer; opacity: 0; transition: opacity 0.15s; width: 80px; text-align: center; }
+.asset-preview:hover .asset-overlay-btn { opacity: 1; }
+
+.asset-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+.asset-num-block { display: flex; flex-direction: column; align-items: flex-end; margin-bottom: auto; }
+.asset-num { font-size: 11px; font-weight: 600; color: #999; text-align: right; }
+.asset-num-tag { font-size: 10px; border-radius: 4px; padding: 1px 6px; margin-top: 4px; display: inline-block; }
+.tag-primary { background: #f0eeff; border: 1px solid #d4c8ff; color: #6c35de; }
+.tag-carousel { background: #f0fff4; border: 1px solid #c8f0d4; color: #3b6d11; }
+.asset-meta-sm { font-size: 10px; color: #bbb; margin-top: auto; line-height: 1.6; }
+.asset-id-sm { font-family: monospace; font-size: 10px; color: #d0d0d0; }
+
+.asset-alt-wrap { margin-top: 0; }
+.asset-alt-label { font-size: 10px; font-weight: 500; color: #aaa; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+.asset-alt-count { font-weight: 400; color: #ccc; }
+
+.drop-zone-add { border: 1.5px dashed #d0d0d0; border-radius: 8px; padding: 12px; text-align: center; font-size: 12px; color: #bbb; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
+.drop-zone-add:hover { border-color: #6c35de; color: #6c35de; background: #f5f0ff; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 12px; padding: 8px 16px; border-radius: 8px; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.toast.show { opacity: 1; }
+::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Arclet CMS</span>
+  <div class="nav-links">
+    <a class="nav-link active">Templates</a>
+    <a class="nav-link">Asset Library</a>
+    <a class="nav-link">Import History</a>
+  </div>
+  <div class="nav-avatar">MC</div>
+</nav>
+
+<div class="save-bar" id="saveBar">
+  <div class="save-bar-msg"><div class="save-dot"></div><span>You have unsaved changes</span></div>
+  <div class="save-actions">
+    <button class="sbb" onclick="discardChanges()">Discard</button>
+    <button class="sbb sbb-p" onclick="saveChanges()">Save changes</button>
+  </div>
+</div>
+
+<div class="page-topbar">
+  <div class="breadcrumb">
+    <a onclick="showToast('Back to grid…')">Templates</a>
+    <span class="breadcrumb-sep">›</span>
+    <a onclick="showToast('Filter to radon-awareness…')">radon-awareness</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="bc-cur">Radon Awareness — Instagram Square (EN)</span>
+  </div>
+  <div class="topbar-actions">
+
+    <!-- SPLIT STATUS BUTTON -->
+    <div class="split-btn s-published" id="splitBtn" style="position:relative">
+      <span class="split-btn-label" id="splitLabel">Published</span>
+      <button class="split-btn-chevron" onclick="toggleStatusDropdown(event)" id="splitChevron">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="status-dropdown" id="statusDropdown">
+        <div class="sdrop-item" onclick="setStatus('published')"><span class="sdrop-dot d-published"></span>Published</div>
+        <div class="sdrop-item" onclick="setStatus('draft')"><span class="sdrop-dot d-draft"></span>Draft</div>
+        <div class="sdrop-item" onclick="setStatus('archived')"><span class="sdrop-dot d-archived"></span>Archived</div>
+      </div>
+    </div>
+
+    <button class="btn btn-g" onclick="showToast('Template cloned — opening copy')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Clone
+    </button>
+    <button class="btn btn-p" onclick="saveChanges()">Save</button>
+  </div>
+</div>
+
+<main>
+  <div class="left-panel">
+    <div class="fields-grid">
+
+      <div class="sec-label">Identity</div>
+
+      <div class="field field-full">
+        <div class="field-label"><span>Title</span></div>
+        <div class="title-wrap">
+          <input class="fi" value="Radon Awareness Month — Instagram Square (EN)" oninput="markDirty(this)">
+          <span class="title-version">v7</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Template ID</span><span class="field-hint">Read only</span></div>
+        <input class="fi" value="radon-awareness" readonly>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Template group</span></div>
+        <div class="group-badge" onclick="showToast('Filtering grid to radon-awareness group…')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          radon-awareness
+          <span class="group-badge-ct">8 variants →</span>
+        </div>
+      </div>
+
+      <div class="sec-label">Content</div>
+
+      <div class="field field-full">
+        <div class="field-label"><span>Caption / Post copy</span><span class="field-hint" id="capCt">284 / 2200</span></div>
+        <textarea class="fi tall" id="f-cap" oninput="markDirty(this);updateCount('f-cap','capCt',2200)">January is National Radon Action Month. Radon is the second leading cause of lung cancer in the United States — and it's invisible and odorless. The only way to know if your home has high radon levels is to test it. Testing is easy, inexpensive, and could save your life. Find out more: https://radon.ncdhhs.gov/ #RadonAwareness #NationalRadonActionMonth</textarea>
+      </div>
+
+      <div class="field field-full">
+        <div class="field-label"><span>Description</span></div>
+        <textarea class="fi" id="f-desc" oninput="markDirty(this)">This social media graphic was created in 2025 by NC DHHS for a general audience to provide essential information about radon exposure and testing guidance.</textarea>
+      </div>
+
+      <div class="sec-label">Classification</div>
+
+      <div class="field">
+        <div class="field-label"><span>Language</span></div>
+        <select class="fi" oninput="markDirty(this)">
+          <option selected>English</option><option>Spanish</option><option>French</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Format</span></div>
+        <select class="fi" oninput="markDirty(this)">
+          <option selected>Instagram Square</option><option>Instagram 4:5</option><option>Facebook Feed</option><option>LinkedIn Post</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Observance</span></div>
+        <input class="fi" value="Radon Awareness Month" oninput="markDirty(this)">
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Campaign</span></div>
+        <select class="fi" oninput="markDirty(this)">
+          <option selected>Radon Awareness — Jan 2026</option>
+          <option>— No campaign —</option>
+          <option>Radon Awareness — Jan 2025</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Agency</span></div>
+        <input class="fi" value="NC DHHS" oninput="markDirty(this)">
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Priority audience</span></div>
+        <input class="fi" value="General Audience" oninput="markDirty(this)">
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Year created</span></div>
+        <input class="fi" value="2025" oninput="markDirty(this)">
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Source URL</span></div>
+        <input class="fi" type="url" value="https://radon.ncdhhs.gov/" oninput="markDirty(this)">
+      </div>
+
+      <div class="field field-full">
+        <div class="field-label"><span>Tags</span></div>
+        <div class="tags-wrap" onclick="document.getElementById('tagInp').focus()">
+          <span class="tag-pill">Radon <span class="tag-x" onclick="removeTag(this)">×</span></span>
+          <span class="tag-pill">January <span class="tag-x" onclick="removeTag(this)">×</span></span>
+          <span class="tag-pill">Air Quality <span class="tag-x" onclick="removeTag(this)">×</span></span>
+          <span class="tag-pill">Indoor Air Quality Awareness Month <span class="tag-x" onclick="removeTag(this)">×</span></span>
+          <span class="tag-pill">National Radon Action Month <span class="tag-x" onclick="removeTag(this)">×</span></span>
+          <input class="tag-input" id="tagInp" placeholder="Add tag…" onkeydown="addTag(event)">
+        </div>
+      </div>
+
+      <div class="sec-label">Settings</div>
+
+      <div class="toggle-row">
+        <div><div class="toggle-lbl">User editable</div><div class="toggle-sub">Allow end users to edit this template</div></div>
+        <label class="toggle"><input type="checkbox" checked onchange="markDirtyDirect()"><span class="toggle-sl"></span></label>
+      </div>
+
+      <div class="timestamps">
+        <div class="ts-item"><strong>Created</strong>Jan 14, 2025 · 9:42 AM</div>
+        <div class="ts-item"><strong>Last modified</strong>Mar 15, 2026 · 2:31 PM by Meg C.</div>
+        <div class="ts-item"><strong>Import run</strong>#import-2026-03-15</div>
+      </div>
+
+      <div class="audit-section">
+        <div class="audit-hd">
+          <span class="audit-title">Recent changes</span>
+          <a class="audit-va" onclick="showToast('Full audit trail coming soon')">View all</a>
+        </div>
+        <div class="audit-entry">
+          <div class="audit-dot me"></div>
+          <div class="audit-txt"><strong>Meg C.</strong> updated Observance — <s style="color:#ccc">Radon Observance</s> → Radon Awareness Month</div>
+          <div class="audit-time">02:31 PM</div>
+        </div>
+        <div class="audit-entry">
+          <div class="audit-dot me"></div>
+          <div class="audit-txt"><strong>Meg C.</strong> changed Status — Draft → <strong>Published</strong></div>
+          <div class="audit-time">02:28 PM</div>
+        </div>
+        <div class="audit-entry">
+          <div class="audit-dot"></div>
+          <div class="audit-txt"><strong>Import</strong> run #import-2026-03-15 created this record</div>
+          <div class="audit-time">Jan 14, 2025</div>
+        </div>
+      </div>
+
+      <div class="delete-zone">
+        <button class="delete-link" onclick="showToast('Delete confirmation would appear here')">Delete this template</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — ASSETS -->
+  <div class="right-panel">
+    <div class="r-card">
+      <div class="r-card-hd">
+        <span class="r-card-title">Assets</span>
+        <div class="r-card-acts">
+          <button class="r-card-act" onclick="showToast('Opening asset library…')">Swap</button>
+          <div class="r-card-sep"></div>
+          <button class="r-card-act" onclick="showToast('Opening asset library…')">+ Add</button>
+        </div>
+      </div>
+      <div class="r-card-body">
+
+        <!-- IMAGE 1 -->
+        <div class="asset-item">
+          <div class="asset-row">
+            <div class="asset-thumb-wrap">
+              <div class="asset-preview">
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 60%,#1a3a5c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;gap:4px">
+                  <div style="font-size:9px;font-weight:700;color:#fff;line-height:1.3;max-width:80px">January is National Radon Action Month</div>
+                  <div style="width:40%;height:1px;background:rgba(255,255,255,0.15)"></div>
+                  <div style="font-size:6px;color:rgba(255,255,255,0.4);letter-spacing:0.04em">NC DEPARTMENT OF HEALTH</div>
+                </div>
+                <div class="asset-overlay">
+                  <button class="asset-overlay-btn" onclick="showToast('Full view…')">Full view</button>
+                  <button class="asset-overlay-btn" onclick="showToast('Replace…')">Replace</button>
+                </div>
+              </div>
+            </div>
+            <div class="asset-info">
+              <div class="asset-num-block">
+                <span class="asset-num">Image 1</span>
+                <span class="asset-num-tag tag-primary">Primary</span>
+              </div>
+              <div class="asset-meta-sm">
+                1080 × 1080 px<br>JPG · 284 KB
+              </div>
+              <div class="asset-id-sm">img_ra_sq_en_001</div>
+            </div>
+          </div>
+          <div class="asset-alt-wrap">
+            <div class="asset-alt-label">Alt text <span class="asset-alt-count" id="alt1ct">142 / 500</span></div>
+            <textarea class="fi" id="f-alt1" oninput="markDirty(this);updateCount('f-alt1','alt1ct',500)" style="min-height:64px">Photo of a smiling family of four indoors with text: "January is National Radon Action Month." NC DHHS branding and state seal visible.</textarea>
+            <button class="ai-btn" onclick="generateAlt('f-alt1','alt1ct',this)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Generate with AI
+            </button>
+          </div>
+        </div>
+
+        <!-- IMAGE 2 -->
+        <div class="asset-item">
+          <div class="asset-row">
+            <div class="asset-thumb-wrap">
+              <div class="asset-preview">
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#2d5a3d 0%,#4a9a60 60%,#2d5a3d 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;gap:4px">
+                  <div style="font-size:9px;font-weight:700;color:#fff;line-height:1.3;max-width:80px">Test Your Home for Radon Today</div>
+                  <div style="width:40%;height:1px;background:rgba(255,255,255,0.15)"></div>
+                  <div style="font-size:6px;color:rgba(255,255,255,0.4)">RADON STATISTICS</div>
+                </div>
+                <div class="asset-overlay">
+                  <button class="asset-overlay-btn" onclick="showToast('Full view…')">Full view</button>
+                  <button class="asset-overlay-btn" onclick="showToast('Replace…')">Replace</button>
+                </div>
+              </div>
+            </div>
+            <div class="asset-info">
+              <div class="asset-num-block">
+                <span class="asset-num">Image 2</span>
+                <span class="asset-num-tag tag-carousel">Carousel</span>
+              </div>
+              <div class="asset-meta-sm">
+                1080 × 1080 px<br>JPG · 198 KB
+              </div>
+              <div class="asset-id-sm">img_ra_sq_en_002</div>
+            </div>
+          </div>
+          <div class="asset-alt-wrap">
+            <div class="asset-alt-label">Alt text <span class="asset-alt-count" id="alt2ct">0 / 500</span></div>
+            <textarea class="fi" id="f-alt2" oninput="markDirty(this);updateCount('f-alt2','alt2ct',500)" style="min-height:64px" placeholder="Add alt text or generate with AI…"></textarea>
+            <button class="ai-btn" onclick="generateAlt('f-alt2','alt2ct',this)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Generate with AI
+            </button>
+          </div>
+        </div>
+
+        <!-- IMAGE 3 -->
+        <div class="asset-item">
+          <div class="asset-row">
+            <div class="asset-thumb-wrap">
+              <div class="asset-preview">
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#5a2d1a 0%,#9a5030 60%,#5a2d1a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;gap:4px">
+                  <div style="font-size:9px;font-weight:700;color:#fff;line-height:1.3;max-width:80px">Take Action — Test &amp; Fix Your Home</div>
+                  <div style="width:40%;height:1px;background:rgba(255,255,255,0.15)"></div>
+                  <div style="font-size:6px;color:rgba(255,255,255,0.4)">CALL TO ACTION</div>
+                </div>
+                <div class="asset-overlay">
+                  <button class="asset-overlay-btn" onclick="showToast('Full view…')">Full view</button>
+                  <button class="asset-overlay-btn" onclick="showToast('Replace…')">Replace</button>
+                </div>
+              </div>
+            </div>
+            <div class="asset-info">
+              <div class="asset-num-block">
+                <span class="asset-num">Image 3</span>
+                <span class="asset-num-tag tag-carousel">Carousel</span>
+              </div>
+              <div class="asset-meta-sm">
+                1080 × 1080 px<br>JPG · 312 KB
+              </div>
+              <div class="asset-id-sm">img_ra_sq_en_003</div>
+            </div>
+          </div>
+          <div class="asset-alt-wrap">
+            <div class="asset-alt-label">Alt text <span class="asset-alt-count" id="alt3ct">0 / 500</span></div>
+            <textarea class="fi" id="f-alt3" oninput="markDirty(this);updateCount('f-alt3','alt3ct',500)" style="min-height:64px" placeholder="Add alt text or generate with AI…"></textarea>
+            <button class="ai-btn" onclick="generateAlt('f-alt3','alt3ct',this)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Generate with AI
+            </button>
+          </div>
+        </div>
+
+        <div class="drop-zone-add" onclick="showToast('Opening asset library or drop files here…')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Add image or drop file here
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// STATUS SPLIT BUTTON
+let currentStatus = 'published';
+const statusConfig = {
+  published: { label: 'Published', cls: 's-published' },
+  draft:     { label: 'Draft',     cls: 's-draft'     },
+  archived:  { label: 'Archived',  cls: 's-archived'  }
+};
+
+function toggleStatusDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('statusDropdown').classList.toggle('open');
+}
+function setStatus(s) {
+  const prev = currentStatus;
+  currentStatus = s;
+  const btn = document.getElementById('splitBtn');
+  btn.className = 'split-btn ' + statusConfig[s].cls;
+  document.getElementById('splitLabel').textContent = statusConfig[s].label;
+  document.getElementById('statusDropdown').classList.remove('open');
+  if (s !== prev) { markDirtyDirect(); showToast('Status set to ' + statusConfig[s].label); }
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#splitBtn')) document.getElementById('statusDropdown').classList.remove('open');
+});
+
+function markDirty(el){ el.classList.add('dirty'); showSaveBar(); }
+function markDirtyDirect(){ showSaveBar(); }
+function showSaveBar(){ document.getElementById('saveBar').classList.add('visible'); }
+function hideSaveBar(){ document.getElementById('saveBar').classList.remove('visible'); document.querySelectorAll('.fi.dirty').forEach(el=>el.classList.remove('dirty')); }
+function saveChanges(){ hideSaveBar(); showToast('Saved · v8 created'); }
+function discardChanges(){ hideSaveBar(); showToast('Changes discarded'); }
+
+function updateCount(fid, cid, max){
+  const el=document.getElementById(fid), cnt=document.getElementById(cid);
+  if(!el||!cnt) return;
+  cnt.textContent = el.value.length + ' / ' + max;
+  cnt.style.color = el.value.length > max*0.9 ? '#f59e0b' : '#ccc';
+}
+
+const altDrafts = {
+  'f-alt1': 'A family of four smiling in a warm home interior. Text reads "January is National Radon Action Month." NC DHHS seal and branding visible. URL radon.ncdhhs.gov shown.',
+  'f-alt2': 'Infographic with radon statistics on green background. Bold white text: "Test Your Home for Radon Today." NC DHHS branding.',
+  'f-alt3': 'Call-to-action graphic on warm amber background encouraging home testing and radon mitigation. NC DHHS logo visible.'
+};
+function generateAlt(fid, cid, btnEl) {
+  const field = document.getElementById(fid);
+  const btn = btnEl.closest ? btnEl.closest('.ai-btn') : btnEl;
+  btn.textContent = 'Generating…'; btn.style.opacity = '0.6';
+  setTimeout(() => {
+    field.value = altDrafts[fid] || 'AI-generated alt text for this image.';
+    field.classList.add('dirty'); showSaveBar();
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Regenerate';
+    btn.style.opacity = '1';
+    updateCount(fid, cid, 500);
+  }, 1400);
+}
+
+function removeTag(x){ x.closest('.tag-pill').remove(); markDirtyDirect(); }
+function addTag(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const val=e.target.value.trim().replace(/,$/,'');
+    if(!val) return;
+    const pill=document.createElement('span');
+    pill.className='tag-pill';
+    pill.innerHTML=val+' <span class="tag-x" onclick="removeTag(this)">×</span>';
+    e.target.before(pill); e.target.value=''; markDirtyDirect();
+  }
+}
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+</script>
+</body>
+</html>

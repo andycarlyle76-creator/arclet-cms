@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arclet CMS — Templates</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; font-size: 13px; }
+
+nav { background: #fff; border-bottom: 1px solid #e9e9e9; padding: 0 28px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+.nav-logo { font-size: 15px; font-weight: 700; color: #6c35de; letter-spacing: -0.3px; }
+.nav-links { display: flex; height: 100%; align-items: stretch; }
+.nav-link { font-size: 13px; color: #666; text-decoration: none; padding: 0 16px; display: flex; align-items: center; border-bottom: 2px solid transparent; cursor: pointer; transition: color 0.12s; }
+.nav-link:hover { color: #1a1a1a; }
+.nav-link.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+.nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: #f0ece8; border: 1px solid #e0dbd5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #7a6a5a; cursor: pointer; }
+
+main { padding: 24px 28px 60px; }
+
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.update-notif { display: none; align-items: center; gap: 7px; font-size: 12px; }
+.update-notif.visible { display: flex; }
+.notif-ts { color: #aaa; font-size: 11px; font-family: monospace; }
+.notif-dot { width: 7px; height: 7px; border-radius: 50%; background: #4C1DDA; flex-shrink: 0; }
+.notif-txt { color: #444; }
+.notif-txt s { color: #bbb; }
+.notif-sep { color: #ddd; font-size: 11px; }
+.notif-lnk { font-size: 12px; color: #6c35de; cursor: pointer; text-decoration: none; background: none; border: none; font-family: inherit; padding: 0; }
+.notif-lnk:hover { text-decoration: underline; }
+
+.btn { font-size: 12px; font-family: inherit; padding: 7px 13px; border-radius: 7px; border: 1px solid #e0e0e0; background: #fff; color: #444; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: background 0.1s; }
+.btn:hover { background: #f5f5f3; }
+.btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.btn-dark:hover { background: #333; border-color: #333; }
+
+.bulk-bar { display: none; align-items: center; gap: 8px; background: #1a1a1a; color: #fff; padding: 7px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; }
+.bulk-bar.visible { display: flex; }
+.bulk-sep { width: 1px; height: 16px; background: #444; }
+.bulk-btn { font-size: 12px; font-family: inherit; padding: 4px 10px; border-radius: 5px; border: 1px solid #444; background: transparent; color: #ccc; cursor: pointer; transition: background 0.1s; }
+.bulk-btn:hover { background: #333; }
+.bulk-btn-danger { border-color: #7a2020; color: #f09595; }
+.bulk-btn-danger:hover { background: #3a1010; }
+.bulk-dismiss { margin-left: auto; color: #888; cursor: pointer; font-size: 16px; line-height: 1; }
+.bulk-dismiss:hover { color: #fff; }
+
+.table-card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; overflow: hidden; }
+
+/* FILTER BAR */
+.filter-bar { padding: 7px 10px; border-bottom: 1px solid #e9e9e9; display: flex; align-items: center; position: relative; background: #fff; }
+.filter-input-wrap { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; min-height: 30px; }
+.fi-icon { color: #bbb; flex-shrink: 0; }
+.f-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 2px 8px 2px 9px; background: #f0eeff; border: 1px solid #c8baff; border-radius: 6px; color: #4C1DDA; white-space: nowrap; }
+.f-chip-x { cursor: pointer; color: #9a7fff; font-size: 14px; line-height: 1; }
+.f-chip-x:hover { color: #4C1DDA; }
+.fi-text { border: none; outline: none; background: transparent; font-size: 13px; font-family: inherit; color: #1a1a1a; min-width: 140px; flex: 1; }
+.fi-text::placeholder { color: #c0c0c0; }
+.filter-right { display: flex; align-items: center; gap: 6px; border-left: 1px solid #e9e9e9; padding-left: 10px; margin-left: 6px; }
+.icon-btn { width: 28px; height: 28px; border-radius: 5px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; transition: background 0.1s; }
+.icon-btn:hover { background: #f0f0ee; color: #444; }
+
+.fdm { display: none; position: absolute; top: calc(100% + 2px); left: 10px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); z-index: 300; min-width: 210px; overflow: hidden; }
+.fdm.open { display: block; }
+.fdm-hd { padding: 6px 12px; font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #f0f0ee; }
+.fdm-item { padding: 8px 14px; font-size: 13px; color: #333; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.fdm-item:hover { background: #f5f5f3; }
+.fdm-enter { font-size: 10px; color: #ccc; }
+.chips-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 5px 10px; border-bottom: 1px solid #e9e9e9; background: #fafaf9; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+thead th { background: #fafaf9; color: #777; font-weight: 500; padding: 8px 10px; text-align: left; border-bottom: 1px solid #e9e9e9; white-space: nowrap; overflow: hidden; user-select: none; font-size: 11px; }
+.th-inner { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+.sort-ic { color: #d0d0d0; font-size: 10px; }
+tbody tr { border-bottom: 1px solid #f0f0ee; transition: background 0.06s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fafaf9; }
+tbody td { padding: 0; border-right: 1px solid #f0f0ee; vertical-align: middle; position: relative; }
+tbody td:last-child { border-right: none; }
+td.cb-cell { width: 40px; text-align: center; padding: 0 10px; cursor: default; }
+td.id-cell { padding: 8px 10px; font-size: 10px; font-family: monospace; color: #bbb; cursor: default; white-space: nowrap; overflow: hidden; }
+td.mod-cell { padding: 8px 10px; font-size: 11px; color: #bbb; cursor: default; white-space: nowrap; }
+td.act-cell { padding: 8px 8px; text-align: center; cursor: default; }
+td.editable { cursor: text; }
+td.dd-cell { cursor: pointer; }
+
+.cell-view { padding: 8px 10px; min-height: 36px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; color: #1a1a1a; pointer-events: none; }
+.cell-input { width: 100%; border: none; outline: none; background: transparent; font-size: 12px; font-family: inherit; color: #1a1a1a; padding: 8px 10px; min-height: 36px; display: block; }
+select.cell-select { width: 100%; border: none; outline: none; background: transparent; font-size: 12px; font-family: inherit; color: #1a1a1a; padding: 8px 10px; min-height: 36px; cursor: pointer; display: block; }
+
+/* CELL STATES */
+td.state-active { outline: 2px solid #FF7E66; outline-offset: -2px; z-index: 2; }
+td.state-changed { outline: 2px solid #4C1DDA; outline-offset: -2px; background: rgba(76,29,218,0.03); }
+td.state-selected { background: rgba(255,126,102,0.07); outline: 1.5px solid rgba(255,126,102,0.4); outline-offset: -1.5px; }
+td.state-changed.state-selected { background: rgba(76,29,218,0.05); outline: 1.5px solid rgba(76,29,218,0.35); outline-offset: -1.5px; }
+
+.dot-changed { position: absolute; top: 5px; right: 5px; width: 5px; height: 5px; border-radius: 50%; background: #4C1DDA; pointer-events: none; }
+
+.badge { display: inline-flex; align-items: center; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid; pointer-events: none; white-space: nowrap; }
+.b-published { background: #eaf3de; color: #3b6d11; border-color: #97c459; }
+.b-draft { background: #f5f5f3; color: #777; border-color: #ccc; }
+.b-archived { background: #faece7; color: #993c1d; border-color: #f0997b; }
+.cell-missing { color: #ddd; font-style: italic; font-size: 11px; }
+
+.row-actions { display: flex; align-items: center; gap: 3px; justify-content: center; }
+.ra-btn { width: 24px; height: 24px; border-radius: 4px; border: none; background: transparent; cursor: pointer; color: #ccc; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.1s, color 0.1s; }
+.ra-btn:hover { background: #f0f0ee; color: #555; }
+
+.table-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid #e9e9e9; font-size: 11px; color: #999; background: #fafaf9; }
+.pagination { display: flex; gap: 3px; align-items: center; }
+.page-btn { min-width: 26px; height: 26px; border-radius: 5px; border: 1px solid #e4e4e4; background: #fff; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; padding: 0 7px; transition: background 0.1s; font-family: inherit; }
+.page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.page-btn:hover:not(.active) { background: #f5f5f3; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 12px; padding: 8px 16px; border-radius: 8px; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.toast.show { opacity: 1; }
+input[type="checkbox"] { cursor: pointer; accent-color: #4C1DDA; width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Arclet CMS</span>
+  <div class="nav-links">
+    <a class="nav-link active">Templates</a>
+    <a class="nav-link">Asset Library</a>
+    <a class="nav-link">Import History</a>
+  </div>
+  <div class="nav-avatar">MC</div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-title">Templates</div>
+    <div class="header-right">
+
+      <!-- UPDATE NOTIFICATION -->
+      <div class="update-notif" id="updateNotif">
+        <span class="notif-ts" id="notifTs"></span>
+        <span class="notif-dot"></span>
+        <span class="notif-txt" id="notifTxt"></span>
+        <span class="notif-sep">·</span>
+        <button class="notif-lnk" onclick="undoLast()">Undo</button>
+        <span class="notif-sep">·</span>
+        <button class="notif-lnk" onclick="showToast('History panel — coming soon')">View all</button>
+      </div>
+
+      <button class="btn btn-dark">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- BULK BAR -->
+  <div class="bulk-bar" id="bulkBar">
+    <span id="bulkCount">0 rows selected</span>
+    <div class="bulk-sep"></div>
+    <button class="bulk-btn">Assign Campaign</button>
+    <button class="bulk-btn">Change Status</button>
+    <button class="bulk-btn">Clone</button>
+    <button class="bulk-btn">Export CSV</button>
+    <button class="bulk-btn bulk-btn-danger">Delete</button>
+    <span class="bulk-dismiss" onclick="clearBulk()">×</span>
+  </div>
+
+  <div class="table-card">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-input-wrap" id="filterWrap">
+        <svg class="fi-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="fi-text" id="fiInput" placeholder="Search and filter" autocomplete="off"
+          onfocus="openFdm()" oninput="onFiType(this.value)">
+      </div>
+      <div class="filter-right">
+        <button class="icon-btn" title="Card view">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="icon-btn" title="List view">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- dropdown -->
+      <div class="fdm" id="fdm">
+        <div class="fdm-hd">Filter by</div>
+        <div class="fdm-item" onclick="addFilter('Observance')">Observance <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Language')">Language <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Format')">Format <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Status')">Status <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Campaign')">Campaign <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Agency')">Agency <span class="fdm-enter">↵</span></div>
+        <div class="fdm-item" onclick="addFilter('Alt text status')">Alt text status <span class="fdm-enter">↵</span></div>
+      </div>
+    </div>
+
+    <!-- CHIPS ROW -->
+    <div id="chipsRow" style="display:none" class="chips-row"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+          <th style="width:110px"><div class="th-inner">Template ID <span class="sort-ic">⇅</span></div></th>
+          <th style="width:175px"><div class="th-inner">Title <span class="sort-ic">⇅</span></div></th>
+          <th style="width:88px"><div class="th-inner">Language <span class="sort-ic">⇅</span></div></th>
+          <th style="width:102px"><div class="th-inner">Format <span class="sort-ic">⇅</span></div></th>
+          <th style="width:88px"><div class="th-inner">Status <span class="sort-ic">⇅</span></div></th>
+          <th style="width:136px"><div class="th-inner">Observance <span class="sort-ic">⇅</span></div></th>
+          <th style="width:90px"><div class="th-inner">Campaign <span class="sort-ic">⇅</span></div></th>
+          <th style="width:150px"><div class="th-inner">Alt Text <span class="sort-ic">⇅</span></div></th>
+          <th style="width:80px"><div class="th-inner">Modified <span class="sort-ic">⇅</span></div></th>
+          <th style="width:52px">Act.</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="table-footer">
+      <span>Showing 8 of 142 templates</span>
+      <div class="pagination">
+        <button class="page-btn">← Prev</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="color:#ccc;padding:0 3px;align-self:center;">…</span>
+        <button class="page-btn">24</button>
+        <button class="page-btn">Next →</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLS = ['title','language','format','status','observance','campaign','altText'];
+const LABELS = {title:'Title',language:'Language',format:'Format',status:'Status',observance:'Observance',campaign:'Campaign',altText:'Alt Text'};
+const DROPDOWNS = { language:['English','Spanish','French'], format:['Square','4:5','Facebook Feed','LinkedIn Post'], status:['Published','Draft','Archived'] };
+
+const rows = [
+  {id:'radon-awareness',title:'Radon Awareness Month — Square',language:'English',format:'Square',status:'Published',observance:'Radon Awareness',campaign:'Mar 25',altText:'A colorful template highlighting radon risks'},
+  {id:'radon-awareness',title:'Radon Awareness Month — 4:5',language:'English',format:'4:5',status:'Published',observance:'Radon Awareness',campaign:'Mar 25',altText:'Bold graphic with radon statistics'},
+  {id:'radon-awareness',title:'Radon Awareness Month — Facebook',language:'English',format:'Facebook Feed',status:'Draft',observance:'',campaign:'',altText:''},
+  {id:'breast-cancer',title:'Breast Cancer Awareness — Square',language:'English',format:'Square',status:'Published',observance:'Breast Cancer Awareness',campaign:'Oct 25',altText:'Pink ribbon awareness graphic'},
+  {id:'breast-cancer',title:'Breast Cancer Awareness — ES',language:'Spanish',format:'Square',status:'Draft',observance:'Breast Cancer Awareness',campaign:'Oct 25',altText:''},
+  {id:'breast-cancer',title:'Breast Cancer Awareness — LinkedIn',language:'English',format:'LinkedIn Post',status:'Draft',observance:'',campaign:'',altText:'Healthcare provider post'},
+  {id:'flu-season',title:'Flu Season Reminder — Square',language:'English',format:'Square',status:'Published',observance:'Flu Season',campaign:'Nov 25',altText:'Flu vaccine reminder graphic'},
+  {id:'flu-season',title:'Flu Season Reminder — ES',language:'Spanish',format:'Square',status:'Draft',observance:'',campaign:'',altText:''},
+];
+
+const original = rows.map(r=>({...r}));
+const changedCells = {};
+const fadeTimers = {};
+let lastBatch = null;
+let activeCell = null;
+let selection = [];
+let dragCol = null, dragStartRow = null, isDragging = false;
+let mouseDownCell = null, mouseDownPos = {x:0,y:0};
+let copiedValue = null, copiedCol = null;
+let checkedRows = new Set();
+let activeFilters = [];
+
+const isActive = (ri,col) => activeCell&&activeCell.row===ri&&activeCell.col===col;
+const inSel = (ri,col) => selection.some(s=>s.row===ri&&s.col===col);
+const isChg = (ri,col) => !!(changedCells[ri]&&changedCells[ri][col]);
+const trunc = s => s&&s.length>28?s.slice(0,28)+'…':(s||'—');
+const nowTs = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const getCellEl = (ri,col) => document.querySelector(`td[data-row="${ri}"][data-col="${col}"]`);
+
+function badge(val){ const c=val==='Published'?'b-published':val==='Draft'?'b-draft':'b-archived'; return `<span class="badge ${c}">${val}</span>`; }
+function disp(col,val){ if(col==='status') return badge(val||'Draft'); if(!val||val==='') return `<span class="cell-missing">—</span>`; return val.length>22?val.slice(0,22)+'…':val; }
+
+function renderGrid(){
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  rows.forEach((row,ri)=>{
+    const tr=document.createElement('tr');
+
+    const cb=document.createElement('td'); cb.className='cb-cell';
+    const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=checkedRows.has(ri);
+    chk.addEventListener('change',()=>{ chk.checked?checkedRows.add(ri):checkedRows.delete(ri); updateBulk(); });
+    cb.appendChild(chk); tr.appendChild(cb);
+
+    const id=document.createElement('td'); id.className='id-cell'; id.textContent=row.id; tr.appendChild(id);
+
+    COLS.forEach(col=>{
+      const td=document.createElement('td');
+      td.dataset.row=ri; td.dataset.col=col;
+      const isDD=!!DROPDOWNS[col];
+      td.className=isDD?'dd-cell':'editable';
+
+      const chg=isChg(ri,col), act=isActive(ri,col), sel=inSel(ri,col)&&!act;
+      if(act) td.classList.add('state-active');
+      else if(chg&&sel){td.classList.add('state-changed');td.classList.add('state-selected');}
+      else if(chg) td.classList.add('state-changed');
+      else if(sel) td.classList.add('state-selected');
+
+      if(chg&&!act){const dot=document.createElement('div');dot.className='dot-changed';td.appendChild(dot);}
+
+      if(act&&isDD){
+        const s=document.createElement('select'); s.className='cell-select';
+        DROPDOWNS[col].forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;if(o===row[col])opt.selected=true;s.appendChild(opt);});
+        td.appendChild(s); s.focus();
+        s.addEventListener('change',()=>commitDD(ri,col,s.value));
+        s.addEventListener('blur',()=>{if(isActive(ri,col)){activeCell=null;renderGrid();}});
+        s.addEventListener('keydown',e=>{if(e.key==='Escape'){activeCell=null;renderGrid();}});
+      } else if(act&&!isDD){
+        const inp=document.createElement('input'); inp.className='cell-input'; inp.value=row[col]||'';
+        td.appendChild(inp); inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+        inp.addEventListener('blur',()=>commitText(ri,col,inp.value));
+        inp.addEventListener('keydown',e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();inp.blur();}if(e.key==='Tab'){e.preventDefault();inp.blur();}});
+        inp.addEventListener('mousedown',e=>e.stopPropagation());
+      } else {
+        const v=document.createElement('div'); v.className='cell-view'; v.innerHTML=disp(col,row[col]); td.appendChild(v);
+      }
+
+      td.addEventListener('mousedown',e=>{ if(act) return; e.preventDefault(); mouseDownCell={row:ri,col}; mouseDownPos={x:e.clientX,y:e.clientY}; isDragging=false; dragCol=col; dragStartRow=ri; });
+      tr.appendChild(td);
+    });
+
+    const mod=document.createElement('td'); mod.className='mod-cell';
+    mod.textContent=(changedCells[ri]&&Object.keys(changedCells[ri]).length)?'Just now':'03.15.26'; tr.appendChild(mod);
+
+    const act2=document.createElement('td'); act2.className='act-cell';
+    act2.innerHTML='<div class="row-actions"><button class="ra-btn" title="Edit">✎</button><button class="ra-btn" title="More">⋯</button></div>'; tr.appendChild(act2);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function scheduleFade(ri,col){
+  const key=`${ri}__${col}`;
+  if(fadeTimers[key]) clearTimeout(fadeTimers[key]);
+  fadeTimers[key]=setTimeout(()=>{
+    if(changedCells[ri]) delete changedCells[ri][col];
+    if(changedCells[ri]&&!Object.keys(changedCells[ri]).length) delete changedCells[ri];
+    renderGrid();
+  },3000);
+}
+
+function applyBatch(batch){
+  batch.forEach(({ri,col})=>{ if(!changedCells[ri]) changedCells[ri]={}; changedCells[ri][col]=true; scheduleFade(ri,col); });
+  lastBatch=batch;
+  renderGrid();
+  showNotif(batch);
+}
+
+function commitText(ri,col,newVal){
+  const oldVal=rows[ri][col]||''; activeCell=null;
+  if(newVal!==oldVal){ rows[ri][col]=newVal; applyBatch([{ri,col,old:oldVal,new:newVal}]); }
+  else renderGrid();
+}
+function commitDD(ri,col,newVal){
+  const oldVal=rows[ri][col]||''; activeCell=null;
+  if(newVal!==oldVal){ rows[ri][col]=newVal; applyBatch([{ri,col,old:oldVal,new:newVal}]); }
+  else renderGrid();
+}
+function commitPaste(value,targets){
+  const batch=[];
+  targets.forEach(({row,col})=>{ const old=rows[row][col]||''; if(old===value) return; rows[row][col]=value; batch.push({ri:row,col,old,new:value}); });
+  activeCell=null; selection=[];
+  if(batch.length>0){ applyBatch(batch); showToast(`Pasted into ${batch.length} cell${batch.length>1?'s':''}`);}
+  else renderGrid();
+}
+
+function showNotif(batch){
+  const n=document.getElementById('updateNotif');
+  const ts=document.getElementById('notifTs');
+  const txt=document.getElementById('notifTxt');
+  ts.textContent=nowTs();
+  if(batch.length===1){
+    const b=batch[0];
+    txt.innerHTML=`1 update &nbsp;·&nbsp; ${LABELS[b.col]}: <s>${trunc(b.old||'—')}</s> → <strong>${trunc(b.new||'—')}</strong>`;
+  } else {
+    txt.textContent=`${batch.length} updates made`;
+  }
+  n.classList.add('visible');
+}
+
+function undoLast(){
+  if(!lastBatch) return;
+  lastBatch.forEach(({ri,col,old})=>{
+    rows[ri][col]=old;
+    if(changedCells[ri]) delete changedCells[ri][col];
+    const key=`${ri}__${col}`;
+    if(fadeTimers[key]){clearTimeout(fadeTimers[key]);delete fadeTimers[key];}
+  });
+  lastBatch=null;
+  document.getElementById('updateNotif').classList.remove('visible');
+  renderGrid(); showToast('Changes undone');
+}
+
+// FILTER
+function openFdm(){ document.getElementById('fdm').classList.add('open'); }
+function closeFdm(){ document.getElementById('fdm').classList.remove('open'); document.getElementById('fiInput').value=''; }
+function onFiType(v){ if(v.length>0) document.getElementById('fdm').classList.add('open'); }
+function addFilter(label){
+  if(!activeFilters.includes(label)) activeFilters.push(label);
+  closeFdm(); renderChips();
+}
+function removeFilter(label){ activeFilters=activeFilters.filter(f=>f!==label); renderChips(); }
+function renderChips(){
+  const row=document.getElementById('chipsRow');
+  if(!activeFilters.length){row.style.display='none';return;}
+  row.style.display='flex';
+  row.innerHTML=activeFilters.map(f=>`<span class="f-chip">${f} <span class="f-chip-x" onclick="removeFilter('${f}')">×</span></span>`).join('')+
+    `<span style="font-size:11px;color:#aaa;cursor:pointer;margin-left:2px;" onclick="clearFilters()">Clear all</span>`;
+}
+function clearFilters(){ activeFilters=[]; renderChips(); }
+
+// MOUSE EVENTS
+document.addEventListener('mousemove',e=>{
+  if(!mouseDownCell) return;
+  const dx=Math.abs(e.clientX-mouseDownPos.x), dy=Math.abs(e.clientY-mouseDownPos.y);
+  if(!isDragging&&(dx>4||dy>4)){
+    isDragging=true; activeCell=null;
+    selection=[{row:mouseDownCell.row,col:mouseDownCell.col}]; renderGrid();
+  }
+  if(isDragging){
+    const els=document.elementsFromPoint(e.clientX,e.clientY);
+    for(const el of els){
+      const td=el.closest('td[data-col]');
+      if(td&&td.dataset.col===dragCol){
+        const ri=parseInt(td.dataset.row);
+        const minR=Math.min(dragStartRow,ri), maxR=Math.max(dragStartRow,ri);
+        const newSel=[];
+        for(let r=minR;r<=maxR;r++) newSel.push({row:r,col:dragCol});
+        if(JSON.stringify(newSel)!==JSON.stringify(selection)){selection=newSel;renderGrid();}
+        break;
+      }
+    }
+  }
+});
+document.addEventListener('mouseup',()=>{
+  if(!mouseDownCell) return;
+  if(!isDragging){ const {row,col}=mouseDownCell; selection=[{row,col}]; activeCell={row,col}; renderGrid(); }
+  mouseDownCell=null; isDragging=false;
+});
+
+// KEYBOARD
+document.addEventListener('keydown',e=>{
+  const meta=e.metaKey||e.ctrlKey;
+  if(meta&&e.key==='c'){
+    if(activeCell){
+      const inp=document.querySelector('.cell-input');
+      if(inp&&inp===document.activeElement){
+        const sel=inp.value.substring(inp.selectionStart,inp.selectionEnd);
+        if(sel.length>0){copiedValue=sel;copiedCol=activeCell.col;showToast(`Copied: "${trunc(sel)}"`);return;}
+      }
+      copiedValue=rows[activeCell.row][activeCell.col]||''; copiedCol=activeCell.col;
+      showToast(`Copied: "${trunc(copiedValue)}"`); return;
+    }
+    if(selection.length>=1){ const {row,col}=selection[0]; copiedValue=rows[row][col]||''; copiedCol=col; showToast(`Copied: "${trunc(copiedValue)}"`); }
+    return;
+  }
+  if(meta&&e.key==='v'){
+    if(copiedValue===null){showToast('Nothing copied — ⌘C a cell first');return;}
+    const targets=selection.length>0?selection:(activeCell?[activeCell]:[]);
+    if(!targets.length) return;
+    if(targets.some(t=>t.col!==copiedCol)){showToast(`Paste only works within the same column`);return;}
+    commitPaste(copiedValue,targets); return;
+  }
+  if(e.key==='Escape'&&!activeCell){selection=[];copiedValue=null;copiedCol=null;renderGrid();}
+});
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#filterBar')) closeFdm();
+  const td=e.target.closest('td[data-row]');
+  if(!td&&!e.target.closest('.bulk-bar')){activeCell=null;selection=[];renderGrid();}
+});
+
+function updateBulk(){
+  const bar=document.getElementById('bulkBar'), cnt=document.getElementById('bulkCount');
+  if(checkedRows.size>0){bar.classList.add('visible');cnt.textContent=`${checkedRows.size} row${checkedRows.size>1?'s':''} selected`;}
+  else bar.classList.remove('visible');
+}
+function clearBulk(){checkedRows.clear();document.getElementById('checkAll').checked=false;updateBulk();renderGrid();}
+function toggleAll(cb){if(cb.checked){rows.forEach((_,i)=>checkedRows.add(i));}else checkedRows.clear();updateBulk();renderGrid();}
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+renderGrid();
+</script>
+</body>
+</html>
